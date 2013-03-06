@@ -1,7 +1,10 @@
 use warnings;
 use Net::Telnet();
 
-#Password on line 1
+ if (!-e "variables.cnf") {
+	die("No variables file exists, Terminating\n");
+ }
+
 my @variables;
  open (VARIABLE, 'variables.cnf');
  while (<VARIABLE>) {
@@ -10,9 +13,7 @@ my @variables;
  }
  close (VARIABLE);
 
-my $password = ($variables[0]) ? $variables[0] : "logmein";
-
-my $routerADDR = "192.168.1.1";
+my $routerADDR = "$variables[2]";
 my (@MAC,@arpTable);
 
 while (true) {
@@ -59,7 +60,7 @@ sub getARPtable {
 		die "Unable to open telnet to $msg";
 	}
 	sleep (2);
-	$telnet->login("root","$password");
+	$telnet->login("$variables[1]","$password");
 	sleep (1);
 	if ($msg = $telnet->errmsg) {
 		die "Unable to login to $msg ";
