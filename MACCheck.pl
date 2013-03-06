@@ -52,7 +52,8 @@ foreach my $line (@arpTable) {
 				print $devicesFile ",$tmpIP";
 				
 				print "Getting hostname for $tmpIP...";
-				my $tmpDNSname = gethostbyaddr($tmpIP, AF_INET);
+				$iaddr = inet_aton("$tmpIP"); # or whatever address
+				my $tmpDNSname = gethostbyaddr($iaddr, AF_INET);
 				print "Host called $tmpDNSname\n";
 				print $devicesFile ",$tmpDNSname\n";
 			}
@@ -106,7 +107,6 @@ sub checkMAC {
 
 sub pushingBox	{
 				my $URL = "http://api.pushingbox.com/pushingbox?devid=$_[0]&device=$_[1]";
-				print ($URL);
 				my $agent = LWP::UserAgent->new(env_proxy => 1,keep_alive => 1, timeout => 30); 
 				my $header = HTTP::Request->new(GET => $URL); 
 				my $request = HTTP::Request->new('GET', $URL, $header); 
