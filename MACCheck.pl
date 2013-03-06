@@ -42,11 +42,7 @@ foreach my $line (@arpTable) {
 		if (checkMAC($1) eq 0) {
 			`msg * New device $1 found`;
 			if($variables[4])	{
-				my $URL = "http://api.pushingbox.com/pushingbox?devid=$variables[4]&device=$1";
-				my $agent = LWP::UserAgent->new(env_proxy => 1,keep_alive => 1, timeout => 30); 
-				my $header = HTTP::Request->new(GET => $URL); 
-				my $request = HTTP::Request->new('GET', $URL, $header); 
-				my $response = $agent->request($request);
+				pushingBox($variables[4], $1);
 			}
 			print $MACeventLog "New device $1 at".(localtime);
 		}
@@ -95,4 +91,11 @@ sub checkMAC {
 	}
 	print "$_[0] is a new one\n";
 	return 0;
+}
+sub pushingBox	{
+				my $URL = "http://api.pushingbox.com/pushingbox?devid=$_[0]&device=$_[1]";
+				my $agent = LWP::UserAgent->new(env_proxy => 1,keep_alive => 1, timeout => 30); 
+				my $header = HTTP::Request->new(GET => $URL); 
+				my $request = HTTP::Request->new('GET', $URL, $header); 
+				my $response = $agent->request($request);
 }
