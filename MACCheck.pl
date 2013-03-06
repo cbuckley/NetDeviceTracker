@@ -25,8 +25,9 @@ my $routerADDR = "$variables[2]";
 my (@MAC,@arpTable);
 my ($tmpMAC,$tmpIP);
 
-while (true) {
-@arpTable = getARPtable($routerADDR,$password);
+for (;;) {
+
+@arpTable = getARPtable($routerADDR);
 
 open (my $devicesOldFile,"<","networkDevices.txt") or die "File didn't open very well";
 foreach my $line (<$devicesOldFile>) {
@@ -52,8 +53,7 @@ foreach my $line (@arpTable) {
 				print $devicesFile ",$tmpIP";
 				
 				print "Getting hostname for $tmpIP...";
-				$iaddr = inet_aton("$tmpIP"); # or whatever address
-				my $tmpDNSname = gethostbyaddr($iaddr, AF_INET);
+				my $tmpDNSname = gethostbyaddr(inet_aton($tmpIP), AF_INET);
 				print "Host called $tmpDNSname\n";
 				print $devicesFile ",$tmpDNSname\n";
 			}
