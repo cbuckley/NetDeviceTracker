@@ -4,6 +4,11 @@ use Net::Telnet();
  if (!-e "variables.cnf") {
 	die("No variables file exists, Terminating\n");
  }
+ if (!-e "networkDevices.txt") {
+	open FILE, ">networkDevices.txt" or die $!;
+	close FILE;
+ }
+
 
 my @variables;
  open ($variables, 'variables.cnf');
