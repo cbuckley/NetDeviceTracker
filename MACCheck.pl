@@ -23,7 +23,7 @@ my @variables;
 
 my $routerADDR = "$variables[2]";
 my (@MAC,@arpTable);
-my ($tmpMAC,$tmpIP);
+my ($tmpMAC,$tmpIP, $tmpDNSname);
 
 for (;;) {
 
@@ -38,26 +38,28 @@ foreach my $line (<$devicesOldFile>) {
 close ($devicesOldFile);
 
 open (my $devicesFile,">","networkDevices.txt") or die "Couldn't open the file";
-open (my $MACeventLog,">","eventLog.txt") or die "That didn't work very well";
+open (my $MACeventLog,">>","eventLog.txt") or die "That didn't work very well";
 foreach my $line (@arpTable) {
 	if ($line =~ /(.{2}\:.{2}\:.{2}\:.{2}\:.{2}\:.{2})/) {
-		if (checkMAC($1) eq 0) {
+		if (checkMAC($1)) {
 			if($variables[4])	{
-				pushingBox($variables[4], $1);
+				#pushingBox($variables[4], $1);
 			}
-			print $MACeventLog "New device $1 at".(localtime);
 			$tmpMAC = $1;
-			print $MACeventLog "New device $tmpMAC at".(localtime);
 			if ($line =~ /(\d+\.\d+\.\d+\.\d+)/) {
 				$tmpIP = $1;
 				print $devicesFile ",$tmpIP";
-				
-				print "Getting hostname for $tmpIP...";
-				my $tmpDNSname = gethostbyaddr(inet_aton($tmpIP), AF_INET);
-				print "Host called $tmpDNSname\n";
+				$tmpDNSname = gethostbyaddr(inet_aton($tmpIP), AF_INET);
+				$tmpDNSname = ($tmpDNSname) ? $tmpDNSname : "UNKNOWN";
 				print $devicesFile ",$tmpDNSname\n";
 			}
+			$tmpDNSname = ($tmpDNSname) ? $tmpDNSname : "UNKNOWN";
+			print $MACeventLog "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime);
 			#`msg * New device $tmpMAC found called $tmpDNSname`;
+			print "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";
+		}
+		else	{
+			print "$1 already in list\n";
 		}
 		print $devicesFile "$1";
 	}
@@ -96,12 +98,10 @@ sub getARPtable {
 sub checkMAC {
 	foreach my $MACaddr (@MAC) {
 		if ($MACaddr eq $_[0]) {
-			print "Already know about $_[0]\n";
-			return 1;
+			return 0;
 		}
 	}
-	print "$_[0] is a new one\n";
-	return 0;
+	return 1;
 }
 
 
