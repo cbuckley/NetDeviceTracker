@@ -44,6 +44,7 @@ foreach my $line (@arpTable) {
 			if($variables[4])	{
 				pushingBox($variables[4], $1);
 			}
+			`msg * New device $1 found`;
 			if($variables[4])	{
 				pushingBox($variables[4], $1);
 			}
