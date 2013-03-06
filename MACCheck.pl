@@ -65,7 +65,6 @@ foreach my $line (@arpTable) {
 close ($devicesFile);
 close ($MACeventLog);
 
-print "\n";
 sleep (10);
 }
 
