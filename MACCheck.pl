@@ -1,5 +1,8 @@
 use warnings;
 use Net::Telnet();
+use Mail::Sendmail;
+use HTTP::Request;
+use LWP::UserAgent;
 use Socket;
 
  if (!-e "variables.cnf") {
@@ -38,6 +41,9 @@ open (my $MACeventLog,">","eventLog.txt") or die "That didn't work very well";
 foreach my $line (@arpTable) {
 	if ($line =~ /(.{2}\:.{2}\:.{2}\:.{2}\:.{2}\:.{2})/) {
 		if (checkMAC($1) eq 0) {
+			if($variables[4])	{
+				pushingBox($variables[4], $1);
+			}
 			$tmpMAC = $1;
 			print $MACeventLog "New device $tmpMAC at".(localtime);
 			if ($line =~ /(\d+\.\d+\.\d+\.\d+)/) {
@@ -94,4 +100,13 @@ sub checkMAC {
 	}
 	print "$_[0] is a new one\n";
 	return 0;
+}
+
+
+sub pushingBox	{
+				my $URL = "http://api.pushingbox.com/pushingbox?devid=$_[0]&device=$_[1]";
+				my $agent = LWP::UserAgent->new(env_proxy => 1,keep_alive => 1, timeout => 30); 
+				my $header = HTTP::Request->new(GET => $URL); 
+				my $request = HTTP::Request->new('GET', $URL, $header); 
+				my $response = $agent->request($request);
 }
