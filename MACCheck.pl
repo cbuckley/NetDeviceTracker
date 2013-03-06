@@ -19,6 +19,15 @@ my (@MAC,@arpTable);
 while (true) {
 @arpTable = getARPtable($routerADDR,$password);
 
+ if (!-e "networkDevices.txt") {
+	open FILE, ">networkDevices.txt" or die $!;
+	close FILE;
+ }
+ if (!-e "eventLog.txt") {
+	open FILE, ">eventLog.txt" or die $!;
+	close FILE;
+ }
+
 open (my $devicesOldFile,"<","networkDevices.txt") or die "File didn't open very well";
 
 foreach my $line (<$devicesOldFile>) {
@@ -60,7 +69,7 @@ sub getARPtable {
 		die "Unable to open telnet to $msg";
 	}
 	sleep (2);
-	$telnet->login("$variables[1]","$password");
+	$telnet->login("$variables[1]","$variables[0]");
 	sleep (1);
 	if ($msg = $telnet->errmsg) {
 		die "Unable to login to $msg ";
