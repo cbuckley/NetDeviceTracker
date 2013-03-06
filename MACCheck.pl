@@ -46,6 +46,7 @@ foreach my $line (@arpTable) {
 				#pushingBox($variables[4], $1);
 			}
 			$tmpMAC = $1;
+			print $devicesFile "$tmpMAC";
 			if ($line =~ /(\d+\.\d+\.\d+\.\d+)/) {
 				$tmpIP = $1;
 				print $devicesFile ",$tmpIP";
@@ -57,8 +58,9 @@ foreach my $line (@arpTable) {
 			print $MACeventLog "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";
 			#`msg * New device $tmpMAC found called $tmpDNSname`;
 			print "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";
+		
 		}
-		print $devicesFile "$1";
+
 	}
 
 }
