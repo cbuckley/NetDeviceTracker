@@ -44,6 +44,10 @@ foreach my $line (@arpTable) {
 			if($variables[4])	{
 				pushingBox($variables[4], $1);
 			}
+			if($variables[4])	{
+				pushingBox($variables[4], $1);
+			}
+			print $MACeventLog "New device $1 at".(localtime);
 			$tmpMAC = $1;
 			print $MACeventLog "New device $tmpMAC at".(localtime);
 			if ($line =~ /(\d+\.\d+\.\d+\.\d+)/) {
