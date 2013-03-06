@@ -54,7 +54,7 @@ foreach my $line (@arpTable) {
 				print $devicesFile ",$tmpDNSname\n";
 			}
 			$tmpDNSname = ($tmpDNSname) ? $tmpDNSname : "UNKNOWN";
-			print $MACeventLog "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime);
+			print $MACeventLog "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";
 			#`msg * New device $tmpMAC found called $tmpDNSname`;
 			print "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";
 		}
