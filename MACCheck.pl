@@ -37,7 +37,7 @@ foreach my $line (<$devicesOldFile>) {
 }
 close ($devicesOldFile);
 
-open (my $devicesFile,">","networkDevices.txt") or die "Couldn't open the file";
+open (my $devicesFile,">>","networkDevices.txt") or die "Couldn't open the file";
 open (my $MACeventLog,">>","eventLog.txt") or die "That didn't work very well";
 foreach my $line (@arpTable) {
 	if ($line =~ /(.{2}\:.{2}\:.{2}\:.{2}\:.{2}\:.{2})/) {
