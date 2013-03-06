@@ -41,11 +41,13 @@ foreach my $line (@arpTable) {
 	if ($line =~ /(.{2}\:.{2}\:.{2}\:.{2}\:.{2}\:.{2})/) {
 		if (checkMAC($1) eq 0) {
 			`msg * New device $1 found`;
-			my $URL = "http://api.pushingbox.com/pushingbox?devid=$variables[4]&device=$1";
-			my $agent = LWP::UserAgent->new(env_proxy => 1,keep_alive => 1, timeout => 30); 
-			my $header = HTTP::Request->new(GET => $URL); 
-			my $request = HTTP::Request->new('GET', $URL, $header); 
-			my $response = $agent->request($request);
+			if($variables[4])	{
+				my $URL = "http://api.pushingbox.com/pushingbox?devid=$variables[4]&device=$1";
+				my $agent = LWP::UserAgent->new(env_proxy => 1,keep_alive => 1, timeout => 30); 
+				my $header = HTTP::Request->new(GET => $URL); 
+				my $request = HTTP::Request->new('GET', $URL, $header); 
+				my $response = $agent->request($request);
+			}
 			print $MACeventLog "New device $1 at".(localtime);
 		}
 		print $devicesFile "$1";
