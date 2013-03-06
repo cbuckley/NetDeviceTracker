@@ -44,7 +44,7 @@ foreach my $line (@arpTable) {
 	if ($line =~ /(.{2}\:.{2}\:.{2}\:.{2}\:.{2}\:.{2})/) {
 		if (checkMAC($1)) {
 			if($variables[4])	{
-				#pushingBox($variables[4], $1);
+				pushingBox($variables[4], $1);
 			}
 			$tmpMAC = $1;
 			print $devicesFile "$tmpMAC";
@@ -57,7 +57,7 @@ foreach my $line (@arpTable) {
 			}
 			$tmpDNSname = ($tmpDNSname) ? $tmpDNSname : "UNKNOWN";
 			print $MACeventLog "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";
-			#`msg * New device $tmpMAC found called $tmpDNSname`;
+			`msg * New device $tmpMAC found called $tmpDNSname`;
 			print "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";
 		
 		}
@@ -102,7 +102,6 @@ sub checkMAC {
 	}
 	return 1;
 }
-
 
 sub pushingBox	{
 				my $URL = "http://api.pushingbox.com/pushingbox?devid=$_[0]&device=$_[1]";
