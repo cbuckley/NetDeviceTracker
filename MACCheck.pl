@@ -23,10 +23,6 @@ while (true) {
 	open FILE, ">networkDevices.txt" or die $!;
 	close FILE;
  }
- if (!-e "eventLog.txt") {
-	open FILE, ">eventLog.txt" or die $!;
-	close FILE;
- }
 
 open (my $devicesOldFile,"<","networkDevices.txt") or die "File didn't open very well";
 
