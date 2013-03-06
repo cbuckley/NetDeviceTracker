@@ -58,9 +58,6 @@ foreach my $line (@arpTable) {
 			#`msg * New device $tmpMAC found called $tmpDNSname`;
 			print "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";
 		}
-		else	{
-			print "$1 already in list\n";
-		}
 		print $devicesFile "$1";
 	}
 
