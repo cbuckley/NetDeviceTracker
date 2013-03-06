@@ -15,19 +15,21 @@ my @variables;
 
 my $routerADDR = "$variables[2]";
 my (@MAC,@arpTable);
-open (my $MACeventLog,">","eventLog.txt") or die "That didn't work very well";
-open (my $devicesOldFile,"<","networkDevices.txt") or die "File didn't open very well";
 
 
 while (true) {
 @arpTable = getARPtable($routerADDR,$password);
 
+open (my $devicesOldFile,"<","networkDevices.txt") or die "File didn't open very well";
 foreach my $line (<$devicesOldFile>) {
 	my @tmp = split (/,/,$line);
 	my $macAddress = $tmp[0];
 	push(@MAC,"$macAddress");
 }
+close ($devicesOldFile);
+
 open (my $devicesFile,">","networkDevices.txt") or die "Couldn't open the file";
+open (my $MACeventLog,">","eventLog.txt") or die "That didn't work very well";
 foreach my $line (@arpTable) {
 	if ($line =~ /(.{2}\:.{2}\:.{2}\:.{2}\:.{2}\:.{2})/) {
 		if (checkMAC($1) eq 0) {
@@ -41,6 +43,7 @@ foreach my $line (@arpTable) {
 	}
 }
 close ($devicesFile);
+close ($MACeventLog);
 
 print "\n";
 sleep (10);
