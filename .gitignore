@@ -1,3 +1,2 @@
-networkDevices.txt
-eventLog.txt
-variables.cnf
+*.txt
+*.cnf

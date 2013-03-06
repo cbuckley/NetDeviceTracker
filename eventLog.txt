@@ -1,0 +1,1 @@
+New device 5C:D9:98:A7:48:6A atWed Mar  6 20:17:33 2013New device 00:30:B8:D1:67:44 atWed Mar  6 20:17:33 2013New device 00:0D:29:9D:36:63 atWed Mar  6 20:17:33 2013New device 04:46:65:E7:0B:C8 atWed Mar  6 20:17:33 2013New device 1C:6F:65:AC:CD:E4 atWed Mar  6 20:17:33 2013New device 1C:6F:65:89:3E:B4 atWed Mar  6 20:17:33 2013
