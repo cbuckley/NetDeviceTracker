@@ -1,7 +1,8 @@
 use warnings;
 use Net::Telnet();
 
-my $password = `variables.cnf`;
+$variable = `variables.cnf`
+my $password = ($variable) ? $variable : "logmein";
 my $routerADDR = "192.168.1.1";
 my (@MAC,@arpTable);
 
