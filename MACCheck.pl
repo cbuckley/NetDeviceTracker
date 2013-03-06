@@ -1,5 +1,6 @@
 use warnings;
 use Net::Telnet();
+use Socket;
 
  if (!-e "variables.cnf") {
 	die("No variables file exists, Terminating\n");
@@ -8,7 +9,6 @@ use Net::Telnet();
 	open FILE, ">networkDevices.txt" or die $!;
 	close FILE;
  }
-
 
 my @variables;
  open ($variables, 'variables.cnf');
@@ -20,7 +20,7 @@ my @variables;
 
 my $routerADDR = "$variables[2]";
 my (@MAC,@arpTable);
-
+my ($tmpMAC,$tmpIP);
 
 while (true) {
 @arpTable = getARPtable($routerADDR,$password);
@@ -38,14 +38,22 @@ open (my $MACeventLog,">","eventLog.txt") or die "That didn't work very well";
 foreach my $line (@arpTable) {
 	if ($line =~ /(.{2}\:.{2}\:.{2}\:.{2}\:.{2}\:.{2})/) {
 		if (checkMAC($1) eq 0) {
-			`msg * New device $1 found`;
-			print $MACeventLog "New device $1 at".(localtime);
+			$tmpMAC = $1;
+			print $MACeventLog "New device $tmpMAC at".(localtime);
+			if ($line =~ /(\d+\.\d+\.\d+\.\d+)/) {
+				$tmpIP = $1;
+				print $devicesFile ",$tmpIP";
+				
+				print "Getting hostname for $tmpIP...";
+				my $tmpDNSname = gethostbyaddr($tmpIP, AF_INET);
+				print "Host called $tmpDNSname\n";
+				print $devicesFile ",$tmpDNSname\n";
+			}
+			#`msg * New device $tmpMAC found called $tmpDNSname`;
 		}
 		print $devicesFile "$1";
 	}
-	if ($line =~ /(\d+\.\d+\.\d+\.\d+)/) {
-		print $devicesFile ",$1\n";
-	}
+
 }
 close ($devicesFile);
 close ($MACeventLog);
