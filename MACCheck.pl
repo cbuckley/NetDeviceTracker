@@ -26,7 +26,8 @@ my (@MAC,@arpTable);
 my ($tmpMAC,$tmpIP, $tmpDNSname);
 
 while (1) {
-
+undef @MAC;
+undef @arpTable;
 @arpTable = getARPtable($routerADDR);
 
 open (my $devicesOldFile,"<","networkDevices.txt") or die "File didn't open very well";
