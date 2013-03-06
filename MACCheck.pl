@@ -6,35 +6,29 @@ use Net::Telnet();
  }
 
 my @variables;
- open (VARIABLE, 'variables.cnf');
- while (<VARIABLE>) {
+ open ($variables, 'variables.cnf');
+ while (<$variables>) {
  	chomp;
 	push(@variables, $_);
  }
- close (VARIABLE);
+ close ($variables);
 
 my $routerADDR = "$variables[2]";
 my (@MAC,@arpTable);
+open (my $devicesFile,">","networkDevices.txt") or die "Couldn't open the file";
+open (my $MACeventLog,">","eventLog.txt") or die "That didn't work very well";
+open (my $devicesOldFile,"<","networkDevices.txt") or die "File didn't open very well";
+
 
 while (true) {
 @arpTable = getARPtable($routerADDR,$password);
-
- if (!-e "networkDevices.txt") {
-	open FILE, ">networkDevices.txt" or die $!;
-	close FILE;
- }
-
-open (my $devicesOldFile,"<","networkDevices.txt") or die "File didn't open very well";
 
 foreach my $line (<$devicesOldFile>) {
 	my @tmp = split (/,/,$line);
 	my $macAddress = $tmp[0];
 	push(@MAC,"$macAddress");
 }
-close ($devicesOldFile);
 
-open (my $devicesFile,">","networkDevices.txt") or die "Couldn't open the file";
-open (my $MACeventLog,">","eventLog.txt") or die "That didn't work very well";
 foreach my $line (@arpTable) {
 	if ($line =~ /(.{2}\:.{2}\:.{2}\:.{2}\:.{2}\:.{2})/) {
 		if (checkMAC($1) eq 0) {
