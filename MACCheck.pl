@@ -25,7 +25,7 @@ my $routerADDR = "$variables[2]";
 my (@MAC,@arpTable);
 my ($tmpMAC,$tmpIP, $tmpDNSname);
 
-for (;;) {
+while (1) {
 
 @arpTable = getARPtable($routerADDR);
 
