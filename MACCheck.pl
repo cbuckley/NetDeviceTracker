@@ -43,9 +43,6 @@ while ( my ($key, $value) = each($MACT) ) {
 foreach my $line (@arpTable) {
 	if ($line =~ /(.{2}\:.{2}\:.{2}\:.{2}\:.{2}\:.{2})/) {
 		if (checkMAC($1)) {
-			if($variables->{pushingbox_api}{value})	{
-				pushingBox($variables->{pushingbox_api}{value}, $1);
-			}
 			$tmpMAC = $1;
 			if ($line =~ /(\d+\.\d+\.\d+\.\d+)/) {
 				$tmpIP = $1;
@@ -59,7 +56,10 @@ foreach my $line (@arpTable) {
 			$sql = "insert into `log` (`l_mac`, `l_ip`, `l_dns`) values (?,?,?)";
 			$sth = $dbh->prepare($sql);
 			$sth->execute($tmpMAC, $tmpIP, $tmpDNSname);
-
+			my $devicestring = "$tmpMAC - $tmpIP ($tmpDNSname)";
+			if($variables->{pushingbox_api}{value})	{
+				pushingBox($variables->{pushingbox_api}{value}, $devicestring);
+			}
 			`msg * New device $tmpMAC found called $tmpDNSname`;
 			print "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";		
 		}
