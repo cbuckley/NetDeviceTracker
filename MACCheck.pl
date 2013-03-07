@@ -3,70 +3,69 @@ use Net::Telnet();
 use HTTP::Request;
 use LWP::UserAgent;
 use Socket;
+use DBI;
+use Data::Dumper;
+use Config::Simple;
 
- if (!-e "variables.cnf") {
-	die("No variables file exists, Terminating\n");
- }
- if (!-e "networkDevices.txt") {
-	open FILE, ">networkDevices.txt" or die $!;
-	close FILE;
- }
+$cfg = new Config::Simple('variables.cnf');
 
-my @variables;
- open ($variables, 'variables.cnf');
- while (<$variables>) {
- 	chomp;
-	push(@variables, $_);
- }
- close ($variables);
+my $dbtype = $cfg->param('dbtype');
+my $dbname = $cfg->param('dbname');
+my $dbhost = $cfg->param('dbhost');
+my $dbuser = $cfg->param('dbuser');
+my $dbpass = $cfg->param('dbpass');
 
-my $routerADDR = "$variables[2]";
+my $dbh = DBI->connect("DBI:$dbtype:$dbname:$dbhost", $dbuser, $dbpass) or die "Can't connect to db";
+$sql = "select v_value as value, v_name from variables";
+$sth = $dbh->prepare($sql);
+$sth->execute();
+my $variables = $sth->fetchall_hashref("v_name");
+my $routerADDR = "$variables->{host}{value}";
 my (@MAC,@arpTable);
 my ($tmpMAC,$tmpIP, $tmpDNSname);
+
 
 while (1) {
 undef @MAC;
 undef @arpTable;
 @arpTable = getARPtable($routerADDR);
 
-open (my $devicesOldFile,"<","networkDevices.txt") or die "File didn't open very well";
-foreach my $line (<$devicesOldFile>) {
-	my @tmp = split (/,/,$line);
-	my $macAddress = $tmp[0];
-	push(@MAC,"$macAddress");
-}
-close ($devicesOldFile);
+#Opening connection to the DB server to grab the devices table
+$sql = "select distinct(d_mac) from devices";
+$sth = $dbh->prepare($sql);
+$sth->execute();
+my $MACT = $sth->fetchall_arrayref();
 
-open (my $devicesFile,">>","networkDevices.txt") or die "Couldn't open the file";
-open (my $MACeventLog,">>","eventLog.txt") or die "That didn't work very well";
+while ( my ($key, $value) = each($MACT) ) {
+	push (@MAC, $value->[0]);
+}
+
 foreach my $line (@arpTable) {
 	if ($line =~ /(.{2}\:.{2}\:.{2}\:.{2}\:.{2}\:.{2})/) {
 		if (checkMAC($1)) {
-			if($variables[4])	{
-				pushingBox($variables[4], $1);
+			if($variables->{pushingbox_api}{value})	{
+				pushingBox($variables->{pushingbox_api}{value}, $1);
 			}
 			$tmpMAC = $1;
-			print $devicesFile "$tmpMAC";
 			if ($line =~ /(\d+\.\d+\.\d+\.\d+)/) {
 				$tmpIP = $1;
-				print $devicesFile ",$tmpIP";
 				$tmpDNSname = gethostbyaddr(inet_aton($tmpIP), AF_INET);
 				$tmpDNSname = ($tmpDNSname) ? $tmpDNSname : "UNKNOWN";
-				print $devicesFile ",$tmpDNSname\n";
 			}
 			$tmpDNSname = ($tmpDNSname) ? $tmpDNSname : "UNKNOWN";
-			print $MACeventLog "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";
-			`msg * New device $tmpMAC found called $tmpDNSname`;
-			print "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";
-		
-		}
+			$sql = "insert into `devices` (`d_mac`, `d_ip`, `d_dns`) values (?,?,?)";
+			$sth = $dbh->prepare($sql);
+			$sth->execute($tmpMAC, $tmpIP, $tmpDNSname);
+			$sql = "insert into `log` (`l_mac`, `l_ip`, `l_dns`) values (?,?,?)";
+			$sth = $dbh->prepare($sql);
+			$sth->execute($tmpMAC, $tmpIP, $tmpDNSname);
 
+			`msg * New device $tmpMAC found called $tmpDNSname`;
+			print "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";		
+		}
 	}
 
 }
-close ($devicesFile);
-close ($MACeventLog);
-
 sleep (10);
 }
 
@@ -83,7 +82,7 @@ sub getARPtable {
 		die "Unable to open telnet to $msg";
 	}
 	sleep (2);
-	$telnet->login("$variables[1]","$variables[0]");
+	$telnet->login("$variables->{username}{value}","$variables->{password}{value}");
 	sleep (1);
 	if ($msg = $telnet->errmsg) {
 		die "Unable to login to $msg ";

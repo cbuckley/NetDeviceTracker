@@ -1,0 +1,5 @@
+dbtype	mysql
+dbname NAME
+dbhost	HOST
+dbuser	USER
+dbpass	PASS
