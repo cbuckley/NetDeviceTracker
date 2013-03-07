@@ -1,6 +1,5 @@
 use warnings;
 use Net::Telnet();
-use Mail::Sendmail;
 use HTTP::Request;
 use LWP::UserAgent;
 use Socket;
