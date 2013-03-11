@@ -50,6 +50,10 @@ foreach my $line (@arpTable) {
 				$tmpDNSname = gethostbyaddr(inet_aton($tmpIP), AF_INET);
 				$tmpDNSname = ($tmpDNSname) ? $tmpDNSname : "UNKNOWN";
 			}
+			my $devicestring = "$tmpMAC - $tmpIP ($tmpDNSname)";
+			if($variables->{pushingbox_api}{value})	{
+				pushingBox($variables->{pushingbox_api}{value}, $devicestring);
+			}
 			$tmpDNSname = ($tmpDNSname) ? $tmpDNSname : "UNKNOWN";
 			$sql = "insert into `devices` (`d_mac`, `d_ip`, `d_dns`) values (?,?,?)";
 			$sth = $dbh->prepare($sql);
