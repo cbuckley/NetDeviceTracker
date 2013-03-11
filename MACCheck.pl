@@ -9,6 +9,9 @@ use Config::Simple;
 
 $cfg = new Config::Simple('variables.cnf');
 
+my (@MAC,@arpTable);
+my ($tmpMAC,$tmpIP, $tmpDNSname,$routerADDR,$variables);
+
 my $dbtype = $cfg->param('dbtype');
 my $dbname = $cfg->param('dbname');
 my $dbhost = $cfg->param('dbhost');
@@ -18,11 +21,9 @@ my $dbpass = $cfg->param('dbpass');
 my $dbh = DBI->connect("DBI:$dbtype:$dbname:$dbhost", $dbuser, $dbpass) or die "Can't connect to db";
 $sql = "select v_value as value, v_name from variables";
 $sth = $dbh->prepare($sql);
-$sth->execute();
-my $variables = $sth->fetchall_hashref("v_name");
-my $routerADDR = "$variables->{host}{value}";
-my (@MAC,@arpTable);
-my ($tmpMAC,$tmpIP, $tmpDNSname);
+$sth->execute() or die "Error";
+$variables = $sth->fetchall_hashref("v_name");
+$routerADDR = "$variables->{host}{value}";
 
 
 while (1) {
@@ -33,7 +34,7 @@ undef @arpTable;
 #Opening connection to the DB server to grab the devices table
 $sql = "select distinct(d_mac) from devices";
 $sth = $dbh->prepare($sql);
-$sth->execute();
+$sth->execute() or die "Error";
 my $MACT = $sth->fetchall_arrayref();
 
 while ( my ($key, $value) = each($MACT) ) {
@@ -55,10 +56,10 @@ foreach my $line (@arpTable) {
 			$tmpDNSname = ($tmpDNSname) ? $tmpDNSname : "UNKNOWN";
 			$sql = "insert into `devices` (`d_mac`, `d_ip`, `d_dns`) values (?,?,?)";
 			$sth = $dbh->prepare($sql);
-			$sth->execute($tmpMAC, $tmpIP, $tmpDNSname);
+			$sth->execute($tmpMAC, $tmpIP, $tmpDNSname) or die "Error";
 			$sql = "insert into `log` (`l_mac`, `l_ip`, `l_dns`) values (?,?,?)";
 			$sth = $dbh->prepare($sql);
-			$sth->execute($tmpMAC, $tmpIP, $tmpDNSname);
+			$sth->execute($tmpMAC, $tmpIP, $tmpDNSname) or die "Error";
 
 			`msg * New device $tmpMAC found called $tmpDNSname`;
 			print "New device $tmpMAC @ $tmpIP ($tmpDNSname) -".(localtime)."\n";		
@@ -68,7 +69,6 @@ foreach my $line (@arpTable) {
 }
 sleep (10);
 }
-
 sub getARPtable {
 	my $telnet;
 	my $msg;
